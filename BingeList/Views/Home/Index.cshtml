@@ -1,0 +1,27 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+    Layout = "~/Views/Shared/_NoContainerLayout.cshtml";
+}
+<div class="container-fluid custom_bg text-center body-content">
+    <div class="row">
+        <div class="col">
+            <img src="@ViewBag.Poster" class="img-fluid" alt="@ViewBag.Movie.Title" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <h1>@ViewBag.Movie.Title</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <h3>@ViewBag.Movie.Tagline</h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <br />
+            <p><a href="@ViewBag.ButtonLink" target="_blank" class="btn btn-primary btn-lg">@ViewBag.ButtonText</a></p>
+        </div>
+    </div>
+</div>

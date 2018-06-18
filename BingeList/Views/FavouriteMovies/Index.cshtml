@@ -1,0 +1,87 @@
+﻿@{
+    ViewBag.Title = "Favourite Movies";
+}
+<div class="container-fluid">
+    <h2>Favourite Movies.</h2>
+
+    <h3>Your own BingeList.</h3>
+    <br />
+
+    @if (Request.IsAuthenticated)
+    {
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <tr>
+                    <th>Poster</th>
+                    <th>Title</th>
+                    <th>Tagline</th>
+                    <th class="text-center"><i class="fas fa-film"></i></th>
+                    <th>Release Date</th>
+                    <th class="text-center">[%]</th>
+                    <th class="text-center"><i class="fas fa-heart"></i></th>
+                </tr>
+
+                @if (ViewBag.Results != null)
+                {
+                    foreach (var movie in ViewBag.Results)
+                    {
+                        <tr id="row-@movie.Id">
+                            @if (movie.PosterPath != null)
+                            {
+                                <td><img src="https://image.tmdb.org/t/p/w92@(movie.PosterPath)" alt="@movie.Title"></td>
+                            }
+                            else
+                            {
+                                <td><img src="~/Content/noImgThumb.jpg" alt="@movie.Title"></td>
+                            }
+
+                            <td>@movie.Title</td>
+                            <td>@movie.Tagline</td>
+                            <td>@(movie.ReleaseDate != null ? movie.ReleaseDate.ToString("dd/MM/yyyy") : "--/--/----")</td>
+                            <td class="text-center">
+                                @if (movie.Videos.Results.Count > 0)
+                                {
+                                    <a href="https://www.youtube.com/embed/@movie.Videos.Results[0].Key" target="_blank" id="trailer-@movie.Id" name="trailer-@movie.Id" class="btn btn-dark fab fa-youtube-square"></a>
+                                }
+                            </td>
+                            <td class="text-center">@movie.VoteAverage</td>
+                            <td class="text-center">
+                                <button id="btn-@movie.Id" name="btn-@movie.Id" class="btn btn-dark fas fa-trash" onclick="UnFav(@movie.Id)"></button>
+                            </td>
+                        </tr>
+                    }
+                }
+            </table>
+        </div>
+    }
+    else
+    {
+        <h3>Please sign-in to check out your favourite movies.</h3>
+        <br /><br />
+    }
+</div>
+<script type="text/javascript">
+    function UnFav(id) {
+        var url = '@Url.Action("_UnFav", "FavouriteMovies")';
+
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: {
+                id: id
+            },
+            success: function (data) {
+                if (data.length == 0) // No errors
+                {
+                    $("#btn-" + id).hide("fast");
+                    $("#row-" + id).hide("slow");
+                    //alert("Ok, this film was removed from your favourites :(");
+                }
+            },
+            error: function (jqXHR) { // Http Status is not 200
+            },
+            complete: function (jqXHR, status) { // Whether success or error it enters here
+            }
+        });
+    };
+</script>

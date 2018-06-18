@@ -1,0 +1,121 @@
+﻿
+@{
+    ViewBag.Title = "Movies";
+}
+<div class="container-fluid">
+    <h2>Movies.</h2>
+
+    <h3>Check out some deadly films to watch.</h3><br />
+
+    @using (Html.BeginForm("Index", "Movies", FormMethod.Post, new { @class = "form-inline justify-content-center" }))
+    {
+        <input type="text" name="search" placeholder="Search Here..." class="form-control" value="@ViewBag.SearchTerm" style="min-width: 70%; margin-right: 8px;" />
+        <button type="submit" class="btn btn-info"><i class="fa fa-search"></i></button>
+    }
+    <br />
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Poster</th>
+                    <th>Title</th>
+                    <th>Overview</th>
+                    <th>Release Date</th>
+                    <th class="text-center">[%]</th>
+                    <th class="text-center"><i class="fas fa-heart"></i></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (ViewBag.Results != null)
+                {
+                    foreach (var movie in ViewBag.Results)
+                    {
+                        <tr>
+                            @if (movie.PosterPath != null)
+                            {
+                                <td><img src="https://image.tmdb.org/t/p/w92@(movie.PosterPath)" alt="@movie.Title"></td>
+                            }
+                            else
+                            {
+                                <td><img src="~/Content/noImgThumb.jpg" alt="@movie.Title"></td>
+                            }
+
+                            <td>@movie.Title</td>
+                            <td class="small">@movie.Overview</td>
+                            <td>@(movie.ReleaseDate != null ? movie.ReleaseDate.ToString("dd/MM/yyyy") : "--/--/----")</td>
+                            <td class="text-center">@movie.VoteAverage</td>
+                            <td class="text-center">
+                                @if (Request.IsAuthenticated)
+                                {
+                                    if (ViewBag.Favourites != null)
+                                    {
+                                        if (ViewBag.Favourites.Contains(movie.Id.ToString()))
+                                        {
+                                            <button id="btn-@movie.Id" name="btn-@movie.Id" class="btn btn-dark fas fa-heart" onclick="UnFav(@movie.Id)"></button>
+                                        }
+                                        else
+                                        {
+                                            <button id="btn-@movie.Id" name="btn-@movie.Id" class="btn btn-dark far fa-heart" onclick="Fav(@movie.Id)"></button>
+                                        }
+                                    }
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    function Fav(id) {
+        var url = '@Url.Action("_Fav", "FavouriteMovies")';
+
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: {
+                id: id
+            },
+            success: function (data) {
+                if (data.length == 0) // No errors
+                {
+                    $("#btn-" + id).removeClass("far");
+                    $("#btn-" + id).addClass("fas");
+                    $("#btn-" + id).attr("onclick", "UnFav(" + id + ")");
+                }
+            },
+            error: function (jqXHR) { // Http Status is not 200
+            },
+            complete: function (jqXHR, status) { // Whether success or error it enters here
+            }
+        });
+    };
+
+    function UnFav(id) {
+        var url = '@Url.Action("_UnFav", "FavouriteMovies")';
+
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: {
+                id: id
+            },
+            success: function (data) {
+                if (data.length == 0) // No errors
+                {
+                    $("#btn-" + id).removeClass("fas");
+                    $("#btn-" + id).addClass("far");
+                    $("#btn-" + id).attr("onclick", "Fav(" + id + ")");
+                }
+            },
+            error: function (jqXHR) { // Http Status is not 200
+            },
+            complete: function (jqXHR, status) { // Whether success or error it enters here
+            }
+        });
+    };
+
+</script>
